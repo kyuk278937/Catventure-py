@@ -31,10 +31,13 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
         self.fleep_update()
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
-    def gravity_(self,isJumping):
+    def collisions(self,isJumping):
         dy = 0
+        drect = pygame.Rect(self.rect[0],self.rect[1],self.rect[2],self.rect[3])
 
         self.vel_y += self.gravity
+
+        drect.y += self.vel_y
 
         if self.rect.bottom + dy > 600:
             self.vel_y = 0
@@ -44,9 +47,15 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
             for block in self.groundGroup:
                 if self.rect.colliderect(block.rect):
                     self.vel_y = 0
+                    if block.rect.top+1 < self.rect.bottom:
+                        dy = block.rect.top+1 - self.rect.bottom
+                    break
+
+                if drect.colliderect(block.rect):
+                    self.vel_y = 0
+                    dy = block.rect.top + 1 - self.rect.bottom
 
         dy += self.vel_y
-
         return dy
 
     def move(self):
@@ -67,7 +76,7 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
             self.vel_y = -self.speed*2
 
         self.rect.x += dx
-        self.rect.y += self.gravity_(isJumpitn)
+        self.rect.y += self.collisions(isJumpitn)
 
     def update(self,debug=False):
         self.draw()
