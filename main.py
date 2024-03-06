@@ -4,7 +4,7 @@ import TestScene
 
 async def main():
     TestScene.TestScene()
-    await asyncio.sleep(0)  # Пездець важлива хуйня НЕ ЧІПАТИ БЛЯТЬ
+    await asyncio.sleep(0)
 
 if __name__ == '__main__':
     asyncio.run(main())
