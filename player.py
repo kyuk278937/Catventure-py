@@ -4,7 +4,7 @@ import SpriteSheet as sp
 class Player(pygame.sprite.Sprite,sp.SpriteSheet):
     def __init__(self,pos,groundGroup,screen):
         pygame.sprite.Sprite.__init__(self)
-        self. screen = screen
+        self.screen = screen
 
         self.groundGroup = groundGroup
 
@@ -79,7 +79,7 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
         self.rect.y += self.collisions(isJumpitn)
 
     def update(self,debug=False):
-        self.draw()
         self.move()
+        self.draw()
 
         if debug: pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 2)

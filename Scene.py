@@ -18,7 +18,8 @@ class Scene():
 
     def createWindow(self,WIDTH, HEIGHT, FPS):
         pygame.init()
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        #screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=1)
+        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.FULLSCREEN, vsync=1)
         pygame.display.set_caption("Catventure")
         pygame.display.set_icon(pygame.image.load('assets/icon.png'))
 

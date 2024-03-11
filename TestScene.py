@@ -1,6 +1,6 @@
 import pygame
 import Scene
-import Player
+import player
 import Block
 
 class TestScene(Scene.Scene):
@@ -23,12 +23,23 @@ class TestScene(Scene.Scene):
         self.create_island(0,528,'grass',0,10,self.screen[0])
         self.groundGroup.add(Block.Block(100,300,'grass',0,self.screen[0]))
 
-        self.player = Player.Player((0, 0),self.groundGroup,self.screen[0])
+        self.player = player.Player((0, 0),self.groundGroup,self.screen[0])
 
     def update(self):
         while True:
-            self.system_update(screen=self.screen)
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                pygame.quit()
+                return 0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return 0
+
+            self.screen[0].fill((50, 50, 50))
+
 
             self.groundGroup.update(self.debug)
-
             self.player.update(self.debug)
+
+            pygame.display.flip()
+            self.screen[1].tick(self.screen[2])
