@@ -14,7 +14,7 @@ class TestScene(Scene.Scene):
         self.screen = self.createWindow(WIDTH=self.WIDTH,
                           HEIGHT=self.HEIGHT,
                           FPS=self.FPS)
-        self.debug = False
+        self.debug = True
 
         self.preload()
         self.update()

@@ -43,17 +43,16 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
             self.vel_y = 0
             dy = 600 - self.rect.bottom
 
-        if isJumping==False:
-            for block in self.groundGroup:
-                if self.rect.colliderect(block.rect):
+        for block in self.groundGroup:
+            if self.rect.colliderect(block.rect):
+                if self.rect[1] + self.vel_y + self.rect[3] > block.rect[1] and self.rect[1] + self.vel_y < block.rect[1] + block.rect[2]/2:
                     self.vel_y = 0
-                    if block.rect.top+1 < self.rect.bottom:
-                        dy = block.rect.top+1 - self.rect.bottom
-                    break
+                    dy = block.rect[1]-self.rect[2] - self.rect[1] + self.gravity
 
-                if drect.colliderect(block.rect):
+                if self.rect.y + self.vel_y < block.rect.y + block.rect[2] and self.rect.y + self.vel_y > block.rect.y + block.rect[2]/2:
+                    dy = block.rect.y + block.rect[2] - self.rect.y + self.vel_y
                     self.vel_y = 0
-                    dy = block.rect.top + 1 - self.rect.bottom
+
 
         dy += self.vel_y
         return dy
