@@ -1,7 +1,8 @@
 import pygame
 import SpriteSheet as sp
+import Coliders
 
-class Player(pygame.sprite.Sprite,sp.SpriteSheet):
+class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
     def __init__(self,pos,groundGroup,screen):
         pygame.sprite.Sprite.__init__(self)
         self.screen = screen
@@ -15,6 +16,7 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
         self.fleep = False
         self.dfleep = False
         self.vel_y = 0
+        self.vel_x = 0
 
         self.playerIdle = self.slice_sheet(sheet=pygame.image.load('assets/Meow-Knight_Idle.png').convert_alpha(),scale=self.scale,spriteSize=self.spriteSize)
 
@@ -33,28 +35,20 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet):
 
     def collisions(self,isJumping):
         dy = 0
-        drect = pygame.Rect(self.rect[0],self.rect[1],self.rect[2],self.rect[3])
+        dx = 0
 
         self.vel_y += self.gravity
-
-        drect.y += self.vel_y
+        self.vel_x = self.speed
 
         if self.rect.bottom + dy > 600:
             self.vel_y = 0
             dy = 600 - self.rect.bottom
+        
 
-        for block in self.groundGroup:
-            if self.rect.colliderect(block.rect):
-                if self.rect[1] + self.vel_y + self.rect[3] > block.rect[1] and self.rect[1] + self.vel_y < block.rect[1] + block.rect[2]/2:
-                    self.vel_y = 0
-                    dy = block.rect[1]-self.rect[2] - self.rect[1] + self.gravity
-
-                if self.rect.y + self.vel_y < block.rect.y + block.rect[2] and self.rect.y + self.vel_y > block.rect.y + block.rect[2]/2:
-                    dy = block.rect.y + block.rect[2] - self.rect.y + self.vel_y
-                    self.vel_y = 0
-
+        self.vel_x, self.vel_y, dx, dy = self.colide_rect_group(rect = self.rect, vel_x = self.vel_x, vel_y = self.vel_y, dx = dx, dy = dy, gravity = self.gravity, group = self.groundGroup)
 
         dy += self.vel_y
+        dx += self.vel_x
         return dy
 
     def move(self):
