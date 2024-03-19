@@ -21,7 +21,7 @@ class TestScene(Scene.Scene):
 
     def preload(self):
         self.create_island(0,528,'grass',0,10,self.screen[0])
-        self.groundGroup.add(Block.Block(100,300,'grass',0,self.screen[0]))
+        self.groundGroup.add(Block.Block(100,528-64,'grass',0,self.screen[0]))
 
         self.player = player.Player((0, 0),self.groundGroup,self.screen[0])
 

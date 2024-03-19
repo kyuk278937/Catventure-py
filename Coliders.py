@@ -9,13 +9,12 @@ class Coliders():
 
         for block in group:
             if rect.colliderect(block.rect):
-                #print(rect)
+                print(rect)
                 
-                if rect[0] + rect[2] + vel_x > block.rect[0] and rect[0] + rect[2] + block.rect[2] < block.rect[0] + block.rect[2]/2:
+                if rect[0] + rect[2] + vel_x > block.rect[0] and rect[0] + rect[2] + vel_x < block.rect[0] + block.rect[2]/2 and rect[1] < block.rect[1] + block.rect[3]*0.75  and rect[1] > block.rect[1] - block.rect[3]*0.75:
                     vel_x = 0
-                    dx = block.rect[0]-rect[2]-rect[0]
+                    dx = block.rect[0]-rect[2]-rect[0] + 1
                     print(1)
-                    break
 
                 if rect[1] + vel_y + rect[3] > block.rect[1] and rect[1] + vel_y < block.rect[1] + block.rect[2]/2:
                     vel_y = 0

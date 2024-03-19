@@ -38,7 +38,6 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         dx = 0
 
         self.vel_y += self.gravity
-        self.vel_x = self.speed
 
         if self.rect.bottom + dy > 600:
             self.vel_y = 0
@@ -49,27 +48,30 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
 
         dy += self.vel_y
         dx += self.vel_x
-        return dy
+        return dx, dy
 
     def move(self):
         dx = 0
+        self.vel_x = 0
         dy = 0
 
         isJumpitn = False
 
         key = pygame.key.get_pressed()
         if key[pygame.K_a]:
-            dx = -self.speed
+            self.vel_x = -self.speed
             self.dfleep = True
         if key[pygame.K_d]:
-            dx = self.speed
+            self.vel_x = self.speed
             self.dfleep = False
         if key[pygame.K_SPACE]:
             isJumpitn = True
             self.vel_y = -self.speed*2
 
-        self.rect.x += dx
-        self.rect.y += self.collisions(isJumpitn)
+
+        d = self.collisions(isJumpitn)
+        self.rect.x += d[0]
+        self.rect.y += d[1]
 
     def update(self,debug=False):
         self.move()
