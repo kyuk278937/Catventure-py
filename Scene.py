@@ -33,12 +33,17 @@ class Scene():
             self.groundGroup.add(Block.Block(x+ self.SPRITE_SIZE*self.SCALE*i, y, layer, self.grassType[type] + 2,screen,self.ISLAND_INDENTATION))
         self.groundGroup.add(Block.Block(x + self.SPRITE_SIZE*self.SCALE*(len+1), y, layer, self.grassType[type] + 3,screen,self.ISLAND_INDENTATION))
 
-    def system_update(self,screen):
-        screen[1].tick(screen[2])
-        pygame.display.update()
-        screen[0].fill((50, 50, 50))
-
+    def system_update1(self,screen):
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            pygame.quit()
+            return 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return 0
+
+        screen[0].fill((50, 50, 50))
+
+    def system_update2(self, screen):
+        pygame.display.flip()
+        screen[1].tick(screen[2])

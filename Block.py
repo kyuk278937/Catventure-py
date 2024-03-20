@@ -9,13 +9,15 @@ class Block(pygame.sprite.Sprite,sp.SpriteSheet):
         self.SCALE = 4
         self.x = x
         self.y = y
-        self.layer = layer
+        self._layer = layer
 
         self.rect = pygame.Rect(x, y + indentation, self.SPRITE_SIZE * self.SCALE,
                                 self.SPRITE_SIZE * self.SCALE - indentation)
         self.image = self.slice_sheet(sheet=pygame.image.load('assets/tilemap_packed.png').convert_alpha(),scale=self.SCALE,spriteSize=self.SPRITE_SIZE)[sprite]
 
-    def update(self,debug=False):
-        self.screen.blit(self.image, (self.x, self.y))
+    def update(self, bias_x ,debug=False):
+        self.rect[0] = self.x - bias_x
+
+        self.screen.blit(self.image, (self.x - bias_x, self.y))
 
         if debug: pygame.draw.rect(self.screen, (0, 0, 255), self.rect, 2)

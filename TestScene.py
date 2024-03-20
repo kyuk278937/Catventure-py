@@ -14,32 +14,26 @@ class TestScene(Scene.Scene):
         self.screen = self.createWindow(WIDTH=self.WIDTH,
                           HEIGHT=self.HEIGHT,
                           FPS=self.FPS)
-        self.debug = True
+        self.debug = False
 
         self.preload()
         self.update()
 
     def preload(self):
         self.create_island(0,528,'grass',0,10,self.screen[0])
-        self.groundGroup.add(Block.Block(100,528-64,'grass',0,self.screen[0]))
+        self.groundGroup.add(Block.Block(100,528 - 45,'grass',0,self.screen[0]))
+        self.groundGroup.add(Block.Block(100, 528 - 200, 'grass', 0, self.screen[0]))
 
-        self.player = player.Player((0, 0),self.groundGroup,self.screen[0])
+        self.player = player.Player((400-32, 0),1,self.groundGroup,self.screen[0])
 
     def update(self):
         while True:
-            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                pygame.quit()
-                return 0
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return 0
+            self.system_update1(self.screen)
 
-            self.screen[0].fill((50, 50, 50))
+            bias_x = self.player.update(self.debug)
 
+            self.groundGroup.update(bias_x, self.debug)
 
-            self.groundGroup.update(self.debug)
-            self.player.update(self.debug)
+            self.player.draw(self.debug)
 
-            pygame.display.flip()
-            self.screen[1].tick(self.screen[2])
+            self.system_update2(self.screen)

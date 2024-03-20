@@ -3,7 +3,7 @@ import SpriteSheet as sp
 import Coliders
 
 class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
-    def __init__(self,pos,groundGroup,screen):
+    def __init__(self,pos,layer,groundGroup,screen):
         pygame.sprite.Sprite.__init__(self)
         self.screen = screen
 
@@ -17,11 +17,14 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         self.dfleep = False
         self.vel_y = 0
         self.vel_x = 0
+        self._layer = layer
 
         self.playerIdle = self.slice_sheet(sheet=pygame.image.load('assets/Meow-Knight_Idle.png').convert_alpha(),scale=self.scale,spriteSize=self.spriteSize)
 
         self.image = self.playerIdle[0]
         self.rect = pygame.Rect(pos[0], pos[1], self.spriteSize * self.scale, self.spriteSize * self.scale)
+
+        self.bias_x = self.rect.x
 
     def fleep_update(self):
         if self.dfleep != self.fleep:
@@ -29,11 +32,13 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
             self.image = pygame.transform.flip(self.image, True, False)
             self.image.set_colorkey((0, 0, 0))
 
-    def draw(self):
+    def draw(self,debug=False):
         self.fleep_update()
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
-    def collisions(self,isJumping):
+        if debug: pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 2)
+
+    def collisions(self):
         dy = 0
         dx = 0
 
@@ -51,11 +56,7 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         return dx, dy
 
     def move(self):
-        dx = 0
         self.vel_x = 0
-        dy = 0
-
-        isJumpitn = False
 
         key = pygame.key.get_pressed()
         if key[pygame.K_a]:
@@ -64,17 +65,19 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         if key[pygame.K_d]:
             self.vel_x = self.speed
             self.dfleep = False
-        if key[pygame.K_SPACE]:
-            isJumpitn = True
+
+        if key[pygame.K_SPACE] and self.bottom_colide_group(self.rect,self.groundGroup):
             self.vel_y = -self.speed*2
 
 
-        d = self.collisions(isJumpitn)
-        self.rect.x += d[0]
+        d = self.collisions()
+        #self.rect.x += d[0]
+        self.bias_x += d[0]
         self.rect.y += d[1]
 
     def update(self,debug=False):
         self.move()
-        self.draw()
 
         if debug: pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 2)
+
+        return self.bias_x
