@@ -1,14 +1,23 @@
 import pygame
 import Block
+import GameObject
+import Window
 
-class Scene():
-    def __init__(self):
+class Scene(Window.Window):
+    def __init__(self, start_bias_x = 0):
         self.SPRITE_SIZE = 18
         self.SCALE = 4
 
         self.ISLAND_INDENTATION = 18
 
+        self.debug = False
+
+        self.start_bias_x = start_bias_x
+
+        self.GameObjectsList = [[],[]]
+
         self.groundGroup = pygame.sprite.Group()
+        self.portalGroup = pygame.sprite.Group()
 
         self.grassType = {
             'grass': 0,
@@ -16,34 +25,43 @@ class Scene():
             'snow': 60
         }
 
-    def createWindow(self,WIDTH, HEIGHT, FPS):
-        pygame.init()
-        screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=1)
-        #screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.FULLSCREEN, vsync=1)
-        pygame.display.set_caption("Catventure")
-        pygame.display.set_icon(pygame.image.load('assets/icon.png'))
-
-        clock = pygame.time.Clock()
-
-        return [screen, clock, FPS]
-
-    def create_island(self,x,y,type,layer,len,screen):
+    def create_Block_island(self,x,y,type,layer,len,screen): #Створюе острів з блоків, що має початковий і кінцевий блок
         self.groundGroup.add(Block.Block(x,y,layer,self.grassType[type]+1,screen,self.ISLAND_INDENTATION))
         for i in range(1,len+1):
             self.groundGroup.add(Block.Block(x+ self.SPRITE_SIZE*self.SCALE*i, y, layer, self.grassType[type] + 2,screen,self.ISLAND_INDENTATION))
         self.groundGroup.add(Block.Block(x + self.SPRITE_SIZE*self.SCALE*(len+1), y, layer, self.grassType[type] + 3,screen,self.ISLAND_INDENTATION))
 
-    def system_update1(self,screen):
-        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-            pygame.quit()
-            return 0
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return 0
+    def create_Block_platform(self,x,y,spryte,layer,len,screen): #Створює платформу з блоків, що мають однакове зображення
+        for i in range(0,len):
+            self.groundGroup.add(Block.Block(x+ self.SPRITE_SIZE*self.SCALE*i, y, layer, spryte, screen,self.ISLAND_INDENTATION))
 
-        screen[0].fill((50, 50, 50))
+    def create_Block_wall(self,x,y,spryte,layer,len,screen): #Створює стіну з блоків, що мають однакове зображення
+        for i in range(0,len):
+            self.groundGroup.add(Block.Block(x, y - self.SPRITE_SIZE*self.SCALE*i, layer, spryte, screen,0))
 
-    def system_update2(self, screen):
-        pygame.display.flip()
-        screen[1].tick(screen[2])
+    def create_wall(self,x,y,image,scale,len,screen): # Створює стіну з ігрових об'єктір й повертає їх
+        objects = list()
+        for i in range(0,len):
+            objects.append(GameObject.GameObject(x, y - image.get_size()[1]*scale*i, image, scale, screen))
+        return objects
+
+    def basick_update(self,player,screen,scen_manager,debug):
+        self.system_update1(screen)
+
+        player_data = player.update(debug)
+        bias_x = player_data[0]
+        next_scene = player_data[1]
+
+        for object in self.GameObjectsList[0]:
+            object.update(bias_x, debug)
+
+        player.draw(debug)
+
+        for object in self.GameObjectsList[1]:
+            object.update(bias_x, debug)
+
+        self.system_update2(screen)
+
+        if next_scene != '':
+            scen_manager.run_scene(next_scene, screen)
+            return

@@ -8,6 +8,12 @@ class Coliders():
                     return True
         return False
 
+    def colide_portal(self,rect,portalGroup):
+        for portal in portalGroup:
+            if rect.colliderect(portal.rect):
+                return portal.next_scene
+        return ''
+
     def colide_rect_group(self, rect, vel_x, vel_y, dx, dy, gravity, group):
         dy = dy
         dx = dx

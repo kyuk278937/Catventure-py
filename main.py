@@ -1,12 +1,21 @@
 import asyncio
 import pygame
 import TestScene
+import Window
+import HomeScene
+import CityScene
 
-async def main():
-    TestScene.TestScene()
-    await asyncio.sleep(0)
+WIDTH = 800
+HEIGHT = 600
+FPS = 60
+
+def main():
+    window = Window.Window()
+    screen = window.createWindow(WIDTH,HEIGHT,FPS)
+    #HomeScene.HomeScene(screen)
+    CityScene.CityScene(screen)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
 
 # http://localhost:8000#debug

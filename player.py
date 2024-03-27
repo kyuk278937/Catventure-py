@@ -3,37 +3,97 @@ import SpriteSheet as sp
 import Coliders
 
 class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
-    def __init__(self,pos,layer,groundGroup,screen):
+    def __init__(self,pos,layer,groundGroup,portalGroup,screen):
         pygame.sprite.Sprite.__init__(self)
         self.screen = screen
 
         self.groundGroup = groundGroup
+        self.portalGroup = portalGroup
 
         self.spriteSize = 16
         self.scale = 4
-        self.speed = 5
+        self.SPEED = 3
+        self.speed = 3
         self.gravity = 0.5
         self.fleep = False
         self.dfleep = False
         self.vel_y = 0
         self.vel_x = 0
-        self._layer = layer
 
         self.playerIdle = self.slice_sheet(sheet=pygame.image.load('assets/Meow-Knight_Idle.png').convert_alpha(),scale=self.scale,spriteSize=self.spriteSize)
+        self.playerWalk = self.slice_sheet(sheet=pygame.image.load('assets/Meow-Knight_Run.png').convert_alpha(),scale=self.scale,spriteSize=self.spriteSize)
+        self.playerJump = self.slice_sheet(sheet=pygame.image.load('assets/Meow-Knight_Dodge.png').convert_alpha(),scale=self.scale, spriteSize=self.spriteSize)
 
         self.image = self.playerIdle[0]
         self.rect = pygame.Rect(pos[0], pos[1], self.spriteSize * self.scale, self.spriteSize * self.scale)
 
         self.bias_x = self.rect.x
 
+        self.anim_frame = -1
+        self.ANIM_FRAME_SCALE = 6
+        self.anim_frame_scale = 6
+        self.anim_delay = 0
+        self.last_anim = list()
+
+        self.player_status = "idle"
+
+        self.next_scene = ''
+
+
+    def play_anim(self,anim_frams_list):
+        if self.last_anim != anim_frams_list:
+            self.anim_delay = self.anim_frame_scale
+            self.anim_frame = -1
+            self.last_anim = anim_frams_list
+
+        if self.anim_delay < self.anim_frame_scale:
+            self.anim_delay += 1
+            return
+
+        self.anim_delay = 0
+        self.anim_frame = (self.anim_frame + 1)%len(anim_frams_list)
+        self.image = anim_frams_list[self.anim_frame]
+
+        self.fleep_update()
+
+    def play_anim_ones(self,anim_frams_list,next_status):
+        if self.last_anim != anim_frams_list:
+            self.anim_delay = self.anim_frame_scale
+            self.anim_frame = -1
+            self.last_anim = anim_frams_list
+
+        if self.anim_delay < self.anim_frame_scale:
+            self.anim_delay += 1
+            return
+
+        self.anim_delay = 0
+        self.anim_frame = self.anim_frame + 1
+        if self.anim_frame < len(anim_frams_list):
+            self.image = anim_frams_list[self.anim_frame]
+        else:
+            self.fleep_update()
+            self.anim_frame = -1
+            self.player_status = next_status
+        self.fleep_update()
+
+    def anim_controller(self):
+        match self.player_status:
+            case "jump":
+                self.play_anim_ones(self.playerJump,"idle")
+                return
+            case "idle":
+                self.play_anim(self.playerIdle)
+            case "walk":
+                self.play_anim(self.playerWalk)
+
+
     def fleep_update(self):
-        if self.dfleep != self.fleep:
-            self.fleep = self.dfleep
+        if self.fleep:
             self.image = pygame.transform.flip(self.image, True, False)
             self.image.set_colorkey((0, 0, 0))
 
     def draw(self,debug=False):
-        self.fleep_update()
+        self.anim_controller()
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
         if debug: pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 2)
@@ -55,20 +115,38 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         dx += self.vel_x
         return dx, dy
 
+    def check_portal(self,key):
+        if key[pygame.K_e]:
+            self.next_scene = self.colide_portal(self.rect,self.portalGroup)
+
     def move(self):
         self.vel_x = 0
+
+        self.player_status = "idle" if self.player_status != "jump" else "jump"
 
         key = pygame.key.get_pressed()
         if key[pygame.K_a]:
             self.vel_x = -self.speed
-            self.dfleep = True
+            self.fleep = True
+            self.player_status = "walk" if self.player_status != "jump" else "jump"
         if key[pygame.K_d]:
             self.vel_x = self.speed
-            self.dfleep = False
+            self.player_status = "walk" if self.player_status != "jump" else "jump"
+            self.fleep = False
+
+        if key[pygame.K_LSHIFT] and (key[pygame.K_d] or key[pygame.K_a]):
+            self.speed = int(self.SPEED * 1.7)
+            self.anim_frame_scale = int(self.ANIM_FRAME_SCALE/1.3)
+        else:
+            self.anim_frame_scale = self.ANIM_FRAME_SCALE
+            self.speed = self.SPEED
 
         if key[pygame.K_SPACE] and self.bottom_colide_group(self.rect,self.groundGroup):
-            self.vel_y = -self.speed*2
+            self.vel_y = -self.SPEED*4
+            self.player_status = 'jump'
+            self.anim_frame = -1
 
+        self.check_portal(key)
 
         d = self.collisions()
         #self.rect.x += d[0]
@@ -78,6 +156,4 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
     def update(self,debug=False):
         self.move()
 
-        if debug: pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 2)
-
-        return self.bias_x
+        return [self.bias_x, self.next_scene]
