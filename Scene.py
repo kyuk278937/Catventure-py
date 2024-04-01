@@ -2,8 +2,10 @@ import pygame
 import Block
 import GameObject
 import Window
+import SpriteSheet
+import Label
 
-class Scene(Window.Window):
+class Scene(Window.Window, SpriteSheet.SpriteSheet):
     def __init__(self, start_bias_x = 0):
         self.SPRITE_SIZE = 18
         self.SCALE = 4
@@ -14,10 +16,13 @@ class Scene(Window.Window):
 
         self.start_bias_x = start_bias_x
 
-        self.GameObjectsList = [[],[]]
+        self.GameObjectsList = [[],[],[]]
 
         self.groundGroup = pygame.sprite.Group()
         self.portalGroup = pygame.sprite.Group()
+        self.npcGroup = pygame.sprite.Group()
+
+        self.basick_spritesheet = self.slice_sheet(sheet=pygame.image.load('assets/tilemap_packed.png').convert_alpha(),scale=self.SCALE,spriteSize=self.SPRITE_SIZE)
 
         self.grassType = {
             'grass': 0,
@@ -45,12 +50,30 @@ class Scene(Window.Window):
             objects.append(GameObject.GameObject(x, y - image.get_size()[1]*scale*i, image, scale, screen))
         return objects
 
+    def create_player_info(self,screen):
+        self.GameObjectsList[2].append(GameObject.GameObject(20, 25, self.basick_spritesheet[151], 1, screen)) #НЕ змінювати прорядок створення
+        self.GameObjectsList[2].append(Label.Label(100,45,"---",48,screen))
+
+        for i in range(5):
+            self.GameObjectsList[2].append(GameObject.GameObject(400 + 70*i, 25, self.basick_spritesheet[44], 1, screen))
+
+    def show_player_info(self,player):
+        HP = player.get_HP()
+        coins = player.get_coins()
+
+        self.GameObjectsList[2][1].set_text(str(coins))
+
     def basick_update(self,player,screen,scen_manager,debug):
         self.system_update1(screen)
+        self.show_player_info(player)
 
         player_data = player.update(debug)
         bias_x = player_data[0]
         next_scene = player_data[1]
+
+        if next_scene != '':
+            scen_manager.run_scene(next_scene, screen, bias_x)
+            return
 
         for object in self.GameObjectsList[0]:
             object.update(bias_x, debug)
@@ -60,8 +83,7 @@ class Scene(Window.Window):
         for object in self.GameObjectsList[1]:
             object.update(bias_x, debug)
 
-        self.system_update2(screen)
+        for object in self.GameObjectsList[2]:
+            object.update(0,False)
 
-        if next_scene != '':
-            scen_manager.run_scene(next_scene, screen)
-            return
+        self.system_update2(screen)

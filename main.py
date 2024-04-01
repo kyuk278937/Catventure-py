@@ -4,6 +4,7 @@ import TestScene
 import Window
 import HomeScene
 import CityScene
+import ShopScene
 
 WIDTH = 800
 HEIGHT = 600
@@ -13,7 +14,8 @@ def main():
     window = Window.Window()
     screen = window.createWindow(WIDTH,HEIGHT,FPS)
     #HomeScene.HomeScene(screen)
-    CityScene.CityScene(screen)
+    #CityScene.CityScene(screen)
+    ShopScene.ShopScene(screen)
 
 if __name__ == '__main__':
     main()

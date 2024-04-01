@@ -8,7 +8,7 @@ class GameObject(pygame.sprite.Sprite):
         self.y = y
 
         self.rect = pygame.Rect(x, y, image.get_size()[0] * scale, image.get_size()[1] * scale)
-        self.image = pygame.transform.scale(image,(image.get_size()[0]*scale,image.get_size()[1]*scale))
+        self.image = pygame.transform.scale(image.convert_alpha(),(image.get_size()[0]*scale,image.get_size()[1]*scale))
 
     def update(self, bias_x ,debug=False):
         self.rect[0] = self.x - bias_x

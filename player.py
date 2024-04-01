@@ -3,12 +3,16 @@ import SpriteSheet as sp
 import Coliders
 
 class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
-    def __init__(self,pos,layer,groundGroup,portalGroup,screen):
+    def __init__(self,pos,layer,groundGroup,portalGroup,npcGroup,screen):
         pygame.sprite.Sprite.__init__(self)
         self.screen = screen
 
         self.groundGroup = groundGroup
         self.portalGroup = portalGroup
+        self.npcGroup = npcGroup
+
+        self.HP = 5
+        self.coins = 0
 
         self.spriteSize = 16
         self.scale = 4
@@ -38,7 +42,13 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         self.player_status = "idle"
 
         self.next_scene = ''
+        self.portal_delay = 35
+        self.portal_delay_count = 0
 
+    def get_HP(self):
+        return self.HP
+    def get_coins(self):
+        return self.coins
 
     def play_anim(self,anim_frams_list):
         if self.last_anim != anim_frams_list:
@@ -116,15 +126,17 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
         return dx, dy
 
     def check_portal(self,key):
-        if key[pygame.K_e]:
-            self.next_scene = self.colide_portal(self.rect,self.portalGroup)
+        next_scene, bias_x = self.colide_portal(self.rect,self.portalGroup)
+        if key[pygame.K_e] and self.portal_delay_count >= self.portal_delay and next_scene != '':
+            self.next_scene, self.bias_x = next_scene, bias_x
+        else:
+            self.portal_delay_count += 1
 
-    def move(self):
+    def move(self,key):
         self.vel_x = 0
 
         self.player_status = "idle" if self.player_status != "jump" else "jump"
 
-        key = pygame.key.get_pressed()
         if key[pygame.K_a]:
             self.vel_x = -self.speed
             self.fleep = True
@@ -146,14 +158,17 @@ class Player(pygame.sprite.Sprite,sp.SpriteSheet,Coliders.Coliders):
             self.player_status = 'jump'
             self.anim_frame = -1
 
-        self.check_portal(key)
-
         d = self.collisions()
         #self.rect.x += d[0]
         self.bias_x += d[0]
         self.rect.y += d[1]
 
     def update(self,debug=False):
-        self.move()
+        key = pygame.key.get_pressed()
+        self.move(key)
+        self.check_portal(key)
+        #print(self.colide_npc_triger(self.rect,self.npcGroup))
+
+        #print(self.bias_x , ' ' , self.rect.y)
 
         return [self.bias_x, self.next_scene]

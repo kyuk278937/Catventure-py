@@ -10,20 +10,22 @@ import GameObject
 import SpriteSheet
 import Background
 
-class CityScene(Scene.Scene, Window.Window,SpriteSheet.SpriteSheet):
+class CityScene(Scene.Scene):
     def __init__(self, screen, start_bias_x = 0):
         super().__init__()
         self.start_bias_x = start_bias_x
 
         self.screen = screen
 
+        self.create_player_info(self.screen[0])
         self.create()
         self.update()
 
     def create(self):
         self.create_Block_island(-400,528,'grass',0,100,self.screen[0])
 
-        self.player = player.Player((368, 472),1,self.groundGroup,self.portalGroup,self.screen[0])
+        self.player = player.Player((368, 472),1,self.groundGroup,self.portalGroup,self.npcGroup,self.screen[0])
+        self.player.bias_x = self.start_bias_x
 
         home = GameObject.GameObject(575,163,pygame.image.load('assets/1146000c972c87c1d9d359fe8fb73ce2839a826f.png'),6,self.screen[0])
         lamp1 = GameObject.GameObject(950, 230, pygame.image.load('assets/QXuedJ.png'),2.5, self.screen[0])
@@ -35,7 +37,8 @@ class CityScene(Scene.Scene, Window.Window,SpriteSheet.SpriteSheet):
         bench = GameObject.GameObject(100,440,pygame.image.load('assets/bench.png'),0.3,self.screen[0])
         tree = GameObject.GameObject(-150,153,pygame.image.load('assets/tree.png'),8,self.screen[0])
 
-        self.portalGroup.add(Portal.Portal(727,450,pygame.image.load('assets/nothing.png'),'home',5,self.screen[0]))
+        self.portalGroup.add(Portal.Portal(727,450,pygame.image.load('assets/nothing.png'),'home',5,self.screen[0],746))
+        self.portalGroup.add(Portal.Portal(2207, 450, pygame.image.load('assets/nothing.png'), 'shop', 6, self.screen[0], 746))
 
         background = Background.Background(pygame.image.load('assets/background.png'),8,3,self.player,self.screen[0])
 

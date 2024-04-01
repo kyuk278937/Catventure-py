@@ -11,8 +11,14 @@ class Coliders():
     def colide_portal(self,rect,portalGroup):
         for portal in portalGroup:
             if rect.colliderect(portal.rect):
-                return portal.next_scene
-        return ''
+                return portal.next_scene, portal.bias_x
+        return '',0
+
+    def colide_npc_triger(self,rect,npcGroup):
+        for npc in npcGroup:
+            if rect.colliderect(npc.rect):
+                return True
+        return False
 
     def colide_rect_group(self, rect, vel_x, vel_y, dx, dy, gravity, group):
         dy = dy
