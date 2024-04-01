@@ -13,9 +13,9 @@ FPS = 60
 def main():
     window = Window.Window()
     screen = window.createWindow(WIDTH,HEIGHT,FPS)
-    #HomeScene.HomeScene(screen)
+    HomeScene.HomeScene(screen)
     #CityScene.CityScene(screen)
-    ShopScene.ShopScene(screen)
+    #ShopScene.ShopScene(screen)
 
 if __name__ == '__main__':
     main()
